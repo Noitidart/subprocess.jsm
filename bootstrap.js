@@ -34,8 +34,30 @@ function startup() {
 				console.log('buffer:', buffer)
 			}
 		});
-	} else {
+	} else if (Services.appinfo.OS == 'Linux') {
 		//subprocess example for non windows not yet implemented but plan to jack from here: https://github.com/ochameau/adbhelper/blob/fd3073a0f5f51e1707a5b4cbace82b13fb5a1fe5/adb.js#L192
+		//tested this on Ubuntu 14.04
+		Cu.import('resource://gre/modules/osfile.jsm');
+		var ps = '/bin/bash';
+		console.log(OS.Path.join(OS.Constants.Path.profileDir, '.parentlock'))
+		var args = ['-c', 'lsof ' + OS.Path.join(OS.Constants.Path.profileDir, '.parentlock').replace(/\W/g, '\\$&')]; //if you remove the `.replace(/\W/g, '\\$&')` it won't work, so must have that
+		
+		var buffer = [];
+		console.time('testSub')
+		subprocess.call({
+			command: ps,
+			arguments: args,
+			stdout: function(data) {
+				buffer.push(data);
+			},
+			done: function() {
+				console.timeEnd('testSub')
+				//var lines = buffer.join('').split('\n');
+				console.log('buffer:', buffer)
+			}
+		});
+	} else {
+		console.warn('no example for your os. OS:', Services.appinfo.OS);
 	}
 }
  
